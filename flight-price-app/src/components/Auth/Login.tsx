@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { login } from '../../api';
 
 interface LoginProps {
   setToken: (token: string) => void;
@@ -13,8 +13,7 @@ const Login: React.FC<LoginProps> = ({ setToken }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      const token = response.data.token;
+      const token = await login(email, password);
       localStorage.setItem('token', token);
       setToken(token);
     } catch (err) {
@@ -41,9 +40,6 @@ const Login: React.FC<LoginProps> = ({ setToken }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className="mb-4">
-            <input type="checkbox" className="mr-2" /> Remember for 30 days
-          </div>
           <button type="submit" className="w-full bg-purple-700 text-white py-2 rounded-lg">
             Login
           </button>
