@@ -39,11 +39,18 @@ const FlightSearchForm: React.FC = () => {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+        if (!response.ok) {
+          throw new Error('Failed to fetch available dates.');
+        }
         const data = await response.json();
         setAvailableDates(data.dates); // Filter available dates based on selected source and destination
       } catch (error) {
         console.error('Error fetching available dates:', error);
+        setError('Failed to load available dates.');
       }
+    } else {
+      // If either source or destination is not selected, reset available dates
+      fetchAvailableOptions();
     }
   };
 
@@ -54,17 +61,23 @@ const FlightSearchForm: React.FC = () => {
   // Handle flight search form submission
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Reset error before new search
+    setFlights([]); // Clear previous flight results
+
     try {
-      const searchResults = await searchFlights(source, destination, date);
-      if (searchResults.length === 0) {
-        setError('No flights available for the selected criteria.');
+      const response = await searchFlights(source, destination, date);
+      // Assuming searchFlights throws an error for non-200 responses
+      setFlights(response.data);
+    } catch (error: any) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        setError(error.response.data.message || 'No flights available for the selected criteria.');
+      } else if (error.message) {
+        // Other errors (network issues, etc.)
+        setError(error.message);
       } else {
-        setFlights(searchResults);
-        setError(''); // Clear any previous error
+        setError('An unexpected error occurred.');
       }
-    } catch (error) {
-      console.error('Error fetching flights:', error);
-      setError('Error fetching flight data. Please try again.');
     }
   };
 
@@ -105,6 +118,7 @@ const FlightSearchForm: React.FC = () => {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="w-full p-2 mb-4 border rounded-lg"
+          disabled={!source || !destination} // Disable if source or destination is not selected
         >
           <option value="">Select Date</option>
           {availableDates.map((d) => (
@@ -115,24 +129,26 @@ const FlightSearchForm: React.FC = () => {
         </select>
 
         {/* Submit Button */}
-        <button type="submit" className="w-full bg-purple-700 text-white py-2 rounded-lg">
+        <button type="submit" className="w-full bg-purple-700 text-white py-2 rounded-lg" disabled={!date}>
           Search
         </button>
       </form>
 
-      {/* Display Errors or Flight Results */}
+      {/* Display Errors */}
       {error && (
         <div className="text-center text-red-500 mt-4">
           <p>{error}</p>
         </div>
       )}
 
+      {/* Display Flights if Available */}
       {flights.length > 0 && (
         <div className="mt-4">
           {flights.map((flight, index) => (
             <div key={index} className="mb-4 p-4 bg-purple-50 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold text-purple-800">{flight.airline}</h3>
               <p>Price: ₹{flight.price}</p>
+              {/* Additional Flight Details can be added here */}
             </div>
           ))}
         </div>
