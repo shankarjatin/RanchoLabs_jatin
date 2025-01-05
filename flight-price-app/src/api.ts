@@ -49,24 +49,26 @@ export const searchFlights = async (source: string, destination: string, date: s
 };
 
 // Function to get flight prices
-export const getFlightPrices = async () => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    throw new Error('User is not authenticated. Please log in.');
-  }
-
-  try {
-    const response = await axios.get(`${apiUrl}/prices`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching flight prices:', error);
-    throw new Error('Error fetching flight prices. Please try again.');
-  }
-};
+export const getFlightPrices = async (airline?: string) => {
+    const token = localStorage.getItem('token');
+    const url = airline ? `${apiUrl}/prices?airline=${airline}` : `${apiUrl}/prices`;
+  
+    if (!token) {
+      throw new Error('User is not authenticated. Please log in.');
+    }
+  
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching flight prices:', error);
+      throw new Error('Error fetching flight prices. Please try again.');
+    }
+  };
 
 // Function to get available options (sources, destinations, dates)
 export const getAvailableOptions = async () => {

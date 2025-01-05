@@ -29,13 +29,34 @@ exports.searchFlights = async (req, res) => {
 };
 
 // Flight prices (mock)
+// Flight prices based on available flights
 exports.getFlightPrices = (req, res) => {
-  res.status(200).json({
-    "indigo": "₹1,614",
-    "airAsia": "₹1,869",
-    "vistara": "₹2,133"
-  });
-};
+    const { airline } = req.query;  // Get airline from query params
+    
+    if (airline) {
+      // Filter flights to get the price for the specific airline
+      const airlineFlights = flights.filter(flight => flight.airline.toLowerCase() === airline.toLowerCase());
+      
+      if (airlineFlights.length > 0) {
+        const prices = airlineFlights.map(flight => ({
+          airline: flight.airline,
+          price: flight.price,
+        }));
+        return res.status(200).json(prices);  // Return all flight prices for the selected airline
+      } else {
+        return res.status(404).json({ message: `No flights available for the airline: ${airline}.` });
+      }
+    }
+  
+    // If no specific airline is requested, return all flight prices
+    const flightPrices = flights.map(flight => ({
+      airline: flight.airline,
+      price: flight.price,
+    }));
+  
+    return res.status(200).json(flightPrices);
+  };
+  
 
 exports.getAvailableOptions = (req, res) => {
     const { source, destination } = req.query;  // Get source and destination from query params

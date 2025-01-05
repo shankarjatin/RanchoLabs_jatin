@@ -1,31 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { searchFlights } from '../../../src/api';  // Assuming searchFlights is updated to handle searching by filters
-const apiUrl = 'http://localhost:5000/';
+import { searchFlights, getAvailableOptions } from '../../../src/api';
+
 const FlightSearchForm: React.FC = () => {
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
   const [date, setDate] = useState('');
   const [flights, setFlights] = useState<any[]>([]);
+  const [error, setError] = useState('');
 
   // For storing available options fetched from the backend
   const [availableSources, setAvailableSources] = useState<string[]>([]);
   const [availableDestinations, setAvailableDestinations] = useState<string[]>([]);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
 
-  // Fetch available options from the backend
+  // Fetch available options (source, destination, and date) from the backend
   const fetchAvailableOptions = async () => {
     try {
-      const response = await fetch(`${apiUrl}api/available-options`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      const data = await response.json();
+      const data = await getAvailableOptions();  // Call the getAvailableOptions API function
       setAvailableSources(data.sources);
       setAvailableDestinations(data.destinations);
-      setAvailableDates(data.dates);
+      setAvailableDates(data.dates); // Initially, all dates are shown
     } catch (error) {
       console.error('Error fetching available options:', error);
+      setError('Failed to load available options.');
     }
   };
 
@@ -33,14 +30,41 @@ const FlightSearchForm: React.FC = () => {
     fetchAvailableOptions(); // Fetch options when the component mounts
   }, []);
 
+  // Update available dates based on selected source and destination
+  const handleSourceDestinationChange = async () => {
+    if (source && destination) {
+      try {
+        const response = await fetch(`/api/available-options?source=${source}&destination=${destination}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const data = await response.json();
+        setAvailableDates(data.dates); // Filter available dates based on selected source and destination
+      } catch (error) {
+        console.error('Error fetching available dates:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleSourceDestinationChange(); // Update available dates when source or destination changes
+  }, [source, destination]);
+
   // Handle flight search form submission
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const searchResults = await searchFlights(source, destination, date);
-      setFlights(searchResults);
+      if (searchResults.length === 0) {
+        setError('No flights available for the selected criteria.');
+      } else {
+        setFlights(searchResults);
+        setError(''); // Clear any previous error
+      }
     } catch (error) {
       console.error('Error fetching flights:', error);
+      setError('Error fetching flight data. Please try again.');
     }
   };
 
@@ -96,7 +120,13 @@ const FlightSearchForm: React.FC = () => {
         </button>
       </form>
 
-      {/* Display Flight Results */}
+      {/* Display Errors or Flight Results */}
+      {error && (
+        <div className="text-center text-red-500 mt-4">
+          <p>{error}</p>
+        </div>
+      )}
+
       {flights.length > 0 && (
         <div className="mt-4">
           {flights.map((flight, index) => (
