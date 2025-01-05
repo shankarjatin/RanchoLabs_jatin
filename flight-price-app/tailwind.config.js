@@ -1,14 +1,9 @@
 module.exports = {
   content: [
-    './src/**/*.{html,js,ts,tsx}', // Tell Tailwind to remove unused styles in production
+    './src/**/*.{html,js,ts,tsx}', // Ensure Tailwind is scanning your source files
   ],
   theme: {
-    extend: {
-      colors: {
-        purple: '#6B4D9A',
-        darkPurple: '#4B2D65',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+const apiUrl = 'http://localhost:5000'; 
 interface SignupProps {
   setToken: (token: string) => void;
 }
@@ -14,7 +14,7 @@ const Signup: React.FC<SignupProps> = ({ setToken }) => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/signup', { email, password, username });
+      const response = await axios.post(`${apiUrl}/api/auth/signup`, { email, password, username });
       const token = response.data.token;
       localStorage.setItem('token', token);
       setToken(token);

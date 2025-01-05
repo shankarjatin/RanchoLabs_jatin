@@ -2,11 +2,13 @@ const authenticateUser = require('../middleware/authMiddleware');
 
 // Dummy flight data
 const flights = [
-  { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'indigo', price: 1614 },
-  { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'airAsia', price: 1869 },
-  { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'vistara', price: 2133 },
-];
-
+    { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'indigo', price: 1614 },
+    { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'airAsia', price: 1869 },
+    { source: 'Delhi', destination: 'Jaipur', date: '2023-04-15', airline: 'vistara', price: 2133 },
+    { source: 'Delhi', destination: 'Mumbai', date: '2023-05-10', airline: 'indigo', price: 1800 },
+    { source: 'Mumbai', destination: 'Jaipur', date: '2023-06-01', airline: 'airAsia', price: 2000 },
+  ];
+  
 // Flight search Controller
 exports.searchFlights = async (req, res) => {
   const { source, destination, date } = req.body;
@@ -34,3 +36,28 @@ exports.getFlightPrices = (req, res) => {
     "vistara": "₹2,133"
   });
 };
+
+exports.getAvailableOptions = (req, res) => {
+    const { source, destination } = req.query;  // Get source and destination from query params
+  
+    let filteredFlights = flights;
+  
+    if (source) {
+      filteredFlights = filteredFlights.filter(flight => flight.source === source);
+    }
+  
+    if (destination) {
+      filteredFlights = filteredFlights.filter(flight => flight.destination === destination);
+    }
+  
+    const sources = [...new Set(filteredFlights.map((flight) => flight.source))];
+    const destinations = [...new Set(filteredFlights.map((flight) => flight.destination))];
+    const dates = [...new Set(filteredFlights.map((flight) => flight.date))];
+  
+    res.status(200).json({
+      sources,
+      destinations,
+      dates,
+    });
+  };
+  

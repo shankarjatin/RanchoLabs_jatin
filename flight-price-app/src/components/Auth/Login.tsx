@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { login } from '../../api';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   setToken: (token: string) => void;
@@ -9,6 +10,7 @@ const Login: React.FC<LoginProps> = ({ setToken }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate(); 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +18,7 @@ const Login: React.FC<LoginProps> = ({ setToken }) => {
       const token = await login(email, password);
       localStorage.setItem('token', token);
       setToken(token);
+      navigate('/dashboard'); 
     } catch (err) {
       setError('Login failed! Please check your credentials.');
     }
