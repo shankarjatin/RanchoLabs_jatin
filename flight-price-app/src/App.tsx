@@ -11,7 +11,7 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         <Route path="/login" element={<Login setToken={setToken} />} />
-        <Route path="/signup" element={<Signup setToken={setToken} />} />
+        <Route path="/" element={<Signup setToken={setToken} />} />
         <Route path="/dashboard" element={token ? <FlightSearchForm /> : <Login setToken={setToken} />} />
       </Routes>
     </Router>
