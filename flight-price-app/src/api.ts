@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'http://localhost:5000/api';  // Change this to the backend URL
+const apiUrl = 'https://rancholabs-jatin.onrender.com/api';  // Change this to the backend URL
 
 // Function to handle user login
 export const login = async (email: string, password: string) => {

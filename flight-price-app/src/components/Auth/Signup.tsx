@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const apiUrl = 'http://localhost:5000'; 
+const apiUrl = 'https://rancholabs-jatin.onrender.com'; 
 
 interface SignupProps {
   setToken: (token: string) => void;
